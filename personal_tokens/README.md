@@ -26,12 +26,16 @@ All URIs are relative to *https://api.azionapi.net*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*PersonalTokenApi* | [**create_personal_token**](docs/PersonalTokenApi.md#create_personal_token) | **POST** /iam/personal_tokens | Create a new personal token
+*PersonalTokenApi* | [**delete_personal_token**](docs/PersonalTokenApi.md#delete_personal_token) | **DELETE** /iam/personal_tokens/{personalTokenId} | Delete a personal token by id
 *PersonalTokenApi* | [**get_personal_token**](docs/PersonalTokenApi.md#get_personal_token) | **GET** /iam/personal_tokens/{personalTokenId} | Get a personal token info
 *PersonalTokenApi* | [**list_personal_token**](docs/PersonalTokenApi.md#list_personal_token) | **GET** /iam/personal_tokens | List all existing personal token
 
 
 ## Documentation For Models
 
+ - [CreatePersonalTokenRequest](docs/CreatePersonalTokenRequest.md)
+ - [CreatePersonalTokenResponse](docs/CreatePersonalTokenResponse.md)
  - [PersonalTokenResponseGet](docs/PersonalTokenResponseGet.md)
  - [PersonalTokenResponseWithResults](docs/PersonalTokenResponseWithResults.md)
  - [PersonalTokenResponseWithResultsLinks](docs/PersonalTokenResponseWithResultsLinks.md)

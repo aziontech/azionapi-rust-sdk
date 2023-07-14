@@ -1,8 +1,9 @@
 .gitignore
-.openapi-generator-ignore
 .travis.yml
 Cargo.toml
 README.md
+docs/CreatePersonalTokenRequest.md
+docs/CreatePersonalTokenResponse.md
 docs/PersonalTokenApi.md
 docs/PersonalTokenResponseGet.md
 docs/PersonalTokenResponseWithResults.md
@@ -12,6 +13,8 @@ src/apis/configuration.rs
 src/apis/mod.rs
 src/apis/personal_token_api.rs
 src/lib.rs
+src/models/create_personal_token_request.rs
+src/models/create_personal_token_response.rs
 src/models/mod.rs
 src/models/personal_token_response_get.rs
 src/models/personal_token_response_with_results.rs

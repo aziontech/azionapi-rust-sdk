@@ -1,3 +1,7 @@
+pub mod create_personal_token_request;
+pub use self::create_personal_token_request::CreatePersonalTokenRequest;
+pub mod create_personal_token_response;
+pub use self::create_personal_token_response::CreatePersonalTokenResponse;
 pub mod personal_token_response_get;
 pub use self::personal_token_response_get::PersonalTokenResponseGet;
 pub mod personal_token_response_with_results;

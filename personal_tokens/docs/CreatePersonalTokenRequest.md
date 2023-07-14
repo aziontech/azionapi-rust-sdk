@@ -1,12 +1,10 @@
-# PersonalTokenResponseGet
+# CreatePersonalTokenRequest
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**uuid** | Option<[**uuid::Uuid**](uuid::Uuid.md)> |  | [optional]
 **name** | Option<**String**> |  | [optional]
-**created** | Option<**String**> |  | [optional]
 **expires_at** | Option<**String**> |  | [optional]
 **description** | Option<**String**> |  | [optional]
 

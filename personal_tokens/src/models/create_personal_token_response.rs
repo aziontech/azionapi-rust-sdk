@@ -12,11 +12,15 @@
 
 
 #[derive(Clone, Debug, PartialEq, Default, Serialize, Deserialize)]
-pub struct PersonalTokenResponseGet {
+pub struct CreatePersonalTokenResponse {
     #[serde(rename = "uuid", skip_serializing_if = "Option::is_none")]
     pub uuid: Option<uuid::Uuid>,
     #[serde(rename = "name", skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
+    #[serde(rename = "key", skip_serializing_if = "Option::is_none")]
+    pub key: Option<String>,
+    #[serde(rename = "user_id", skip_serializing_if = "Option::is_none")]
+    pub user_id: Option<f32>,
     #[serde(rename = "created", skip_serializing_if = "Option::is_none")]
     pub created: Option<String>,
     #[serde(rename = "expires_at", skip_serializing_if = "Option::is_none")]
@@ -25,11 +29,13 @@ pub struct PersonalTokenResponseGet {
     pub description: Option<Option<String>>,
 }
 
-impl PersonalTokenResponseGet {
-    pub fn new() -> PersonalTokenResponseGet {
-        PersonalTokenResponseGet {
+impl CreatePersonalTokenResponse {
+    pub fn new() -> CreatePersonalTokenResponse {
+        CreatePersonalTokenResponse {
             uuid: None,
             name: None,
+            key: None,
+            user_id: None,
             created: None,
             expires_at: None,
             description: None,
