@@ -10,17 +10,17 @@
 
 
 use reqwest;
-
-use crate::apis::ResponseContent;
-use super::{Error, configuration};
+use serde::{Deserialize, Serialize, de::Error as _};
+use crate::{apis::ResponseContent, models};
+use super::{Error, configuration, ContentType};
 
 
 /// struct for typed errors of method [`edge_functions_get`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EdgeFunctionsGetError {
-    Status404(crate::models::ErrorResponse),
-    DefaultResponse(crate::models::ErrorResponse),
+    Status404(models::ErrorResponse),
+    DefaultResponse(models::ErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -28,7 +28,7 @@ pub enum EdgeFunctionsGetError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EdgeFunctionsIdDeleteError {
-    DefaultResponse(crate::models::ErrorResponse),
+    DefaultResponse(models::ErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -36,8 +36,8 @@ pub enum EdgeFunctionsIdDeleteError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EdgeFunctionsIdGetError {
-    Status404(crate::models::ErrorResponse),
-    DefaultResponse(crate::models::ErrorResponse),
+    Status404(models::ErrorResponse),
+    DefaultResponse(models::ErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -45,8 +45,8 @@ pub enum EdgeFunctionsIdGetError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EdgeFunctionsIdPatchError {
-    Status400(crate::models::BadRequestResponse),
-    DefaultResponse(crate::models::ErrorResponse),
+    Status400(models::BadRequestResponse),
+    DefaultResponse(models::ErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -54,8 +54,8 @@ pub enum EdgeFunctionsIdPatchError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EdgeFunctionsIdPutError {
-    Status400(crate::models::BadRequestResponse),
-    DefaultResponse(crate::models::ErrorResponse),
+    Status400(models::BadRequestResponse),
+    DefaultResponse(models::ErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
@@ -63,234 +63,282 @@ pub enum EdgeFunctionsIdPutError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EdgeFunctionsPostError {
-    Status400(crate::models::BadRequestResponse),
-    DefaultResponse(crate::models::ErrorResponse),
+    Status400(models::BadRequestResponse),
+    DefaultResponse(models::ErrorResponse),
     UnknownValue(serde_json::Value),
 }
 
 
-pub async fn edge_functions_get(configuration: &configuration::Configuration, page: Option<i64>, page_size: Option<i64>, sort: Option<&str>, order_by: Option<&str>) -> Result<crate::models::ListEdgeFunctionResponse, Error<EdgeFunctionsGetError>> {
-    let local_var_configuration = configuration;
+pub async fn edge_functions_get(configuration: &configuration::Configuration, page: Option<i64>, page_size: Option<i64>, sort: Option<&str>, order_by: Option<&str>) -> Result<models::ListEdgeFunctionResponse, Error<EdgeFunctionsGetError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_page = page;
+    let p_page_size = page_size;
+    let p_sort = sort;
+    let p_order_by = order_by;
 
-    let local_var_client = &local_var_configuration.client;
+    let uri_str = format!("{}/edge_functions", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    let local_var_uri_str = format!("{}/edge_functions", local_var_configuration.base_path);
-    let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-    if let Some(ref local_var_str) = page {
-        local_var_req_builder = local_var_req_builder.query(&[("page", &local_var_str.to_string())]);
+    if let Some(ref param_value) = p_page {
+        req_builder = req_builder.query(&[("page", &param_value.to_string())]);
     }
-    if let Some(ref local_var_str) = page_size {
-        local_var_req_builder = local_var_req_builder.query(&[("page_size", &local_var_str.to_string())]);
+    if let Some(ref param_value) = p_page_size {
+        req_builder = req_builder.query(&[("page_size", &param_value.to_string())]);
     }
-    if let Some(ref local_var_str) = sort {
-        local_var_req_builder = local_var_req_builder.query(&[("sort", &local_var_str.to_string())]);
+    if let Some(ref param_value) = p_sort {
+        req_builder = req_builder.query(&[("sort", &param_value.to_string())]);
     }
-    if let Some(ref local_var_str) = order_by {
-        local_var_req_builder = local_var_req_builder.query(&[("order_by", &local_var_str.to_string())]);
+    if let Some(ref param_value) = p_order_by {
+        req_builder = req_builder.query(&[("order_by", &param_value.to_string())]);
     }
-    if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-        local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-        let local_var_key = local_var_apikey.key.clone();
-        let local_var_value = match local_var_apikey.prefix {
-            Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-            None => local_var_key,
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
         };
-        local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        req_builder = req_builder.header("Authorization", value);
     };
 
-    let local_var_req = local_var_req_builder.build()?;
-    let local_var_resp = local_var_client.execute(local_var_req).await?;
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
 
-    let local_var_status = local_var_resp.status();
-    let local_var_content = local_var_resp.text().await?;
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
 
-    if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-        serde_json::from_str(&local_var_content).map_err(Error::from)
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::ListEdgeFunctionResponse`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::ListEdgeFunctionResponse`")))),
+        }
     } else {
-        let local_var_entity: Option<EdgeFunctionsGetError> = serde_json::from_str(&local_var_content).ok();
-        let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-        Err(Error::ResponseError(local_var_error))
+        let content = resp.text().await?;
+        let entity: Option<EdgeFunctionsGetError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
     }
 }
 
 pub async fn edge_functions_id_delete(configuration: &configuration::Configuration, id: i64) -> Result<(), Error<EdgeFunctionsIdDeleteError>> {
-    let local_var_configuration = configuration;
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_id = id;
 
-    let local_var_client = &local_var_configuration.client;
+    let uri_str = format!("{}/edge_functions/{id}", configuration.base_path, id=p_id);
+    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
-    let local_var_uri_str = format!("{}/edge_functions/{id}", local_var_configuration.base_path, id=id);
-    let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
-
-    if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-        local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-        let local_var_key = local_var_apikey.key.clone();
-        let local_var_value = match local_var_apikey.prefix {
-            Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-            None => local_var_key,
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
         };
-        local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        req_builder = req_builder.header("Authorization", value);
     };
 
-    let local_var_req = local_var_req_builder.build()?;
-    let local_var_resp = local_var_client.execute(local_var_req).await?;
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
 
-    let local_var_status = local_var_resp.status();
-    let local_var_content = local_var_resp.text().await?;
+    let status = resp.status();
 
-    if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+    if !status.is_client_error() && !status.is_server_error() {
         Ok(())
     } else {
-        let local_var_entity: Option<EdgeFunctionsIdDeleteError> = serde_json::from_str(&local_var_content).ok();
-        let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-        Err(Error::ResponseError(local_var_error))
+        let content = resp.text().await?;
+        let entity: Option<EdgeFunctionsIdDeleteError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
     }
 }
 
-pub async fn edge_functions_id_get(configuration: &configuration::Configuration, id: i64) -> Result<crate::models::EdgeFunctionResponse, Error<EdgeFunctionsIdGetError>> {
-    let local_var_configuration = configuration;
+pub async fn edge_functions_id_get(configuration: &configuration::Configuration, id: i64) -> Result<models::EdgeFunctionResponse, Error<EdgeFunctionsIdGetError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_id = id;
 
-    let local_var_client = &local_var_configuration.client;
+    let uri_str = format!("{}/edge_functions/{id}", configuration.base_path, id=p_id);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    let local_var_uri_str = format!("{}/edge_functions/{id}", local_var_configuration.base_path, id=id);
-    let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-    if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-        local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-        let local_var_key = local_var_apikey.key.clone();
-        let local_var_value = match local_var_apikey.prefix {
-            Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-            None => local_var_key,
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
         };
-        local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        req_builder = req_builder.header("Authorization", value);
     };
 
-    let local_var_req = local_var_req_builder.build()?;
-    let local_var_resp = local_var_client.execute(local_var_req).await?;
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
 
-    let local_var_status = local_var_resp.status();
-    let local_var_content = local_var_resp.text().await?;
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
 
-    if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-        serde_json::from_str(&local_var_content).map_err(Error::from)
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::EdgeFunctionResponse`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::EdgeFunctionResponse`")))),
+        }
     } else {
-        let local_var_entity: Option<EdgeFunctionsIdGetError> = serde_json::from_str(&local_var_content).ok();
-        let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-        Err(Error::ResponseError(local_var_error))
+        let content = resp.text().await?;
+        let entity: Option<EdgeFunctionsIdGetError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
     }
 }
 
-pub async fn edge_functions_id_patch(configuration: &configuration::Configuration, id: i64, patch_edge_function_request: crate::models::PatchEdgeFunctionRequest) -> Result<crate::models::EdgeFunctionResponse, Error<EdgeFunctionsIdPatchError>> {
-    let local_var_configuration = configuration;
+pub async fn edge_functions_id_patch(configuration: &configuration::Configuration, id: i64, patch_edge_function_request: models::PatchEdgeFunctionRequest) -> Result<models::EdgeFunctionResponse, Error<EdgeFunctionsIdPatchError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_id = id;
+    let p_patch_edge_function_request = patch_edge_function_request;
 
-    let local_var_client = &local_var_configuration.client;
+    let uri_str = format!("{}/edge_functions/{id}", configuration.base_path, id=p_id);
+    let mut req_builder = configuration.client.request(reqwest::Method::PATCH, &uri_str);
 
-    let local_var_uri_str = format!("{}/edge_functions/{id}", local_var_configuration.base_path, id=id);
-    let mut local_var_req_builder = local_var_client.request(reqwest::Method::PATCH, local_var_uri_str.as_str());
-
-    if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-        local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-        let local_var_key = local_var_apikey.key.clone();
-        let local_var_value = match local_var_apikey.prefix {
-            Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-            None => local_var_key,
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
         };
-        local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        req_builder = req_builder.header("Authorization", value);
     };
-    local_var_req_builder = local_var_req_builder.json(&patch_edge_function_request);
+    req_builder = req_builder.json(&p_patch_edge_function_request);
 
-    let local_var_req = local_var_req_builder.build()?;
-    let local_var_resp = local_var_client.execute(local_var_req).await?;
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
 
-    let local_var_status = local_var_resp.status();
-    let local_var_content = local_var_resp.text().await?;
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
 
-    if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-        serde_json::from_str(&local_var_content).map_err(Error::from)
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::EdgeFunctionResponse`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::EdgeFunctionResponse`")))),
+        }
     } else {
-        let local_var_entity: Option<EdgeFunctionsIdPatchError> = serde_json::from_str(&local_var_content).ok();
-        let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-        Err(Error::ResponseError(local_var_error))
+        let content = resp.text().await?;
+        let entity: Option<EdgeFunctionsIdPatchError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
     }
 }
 
-pub async fn edge_functions_id_put(configuration: &configuration::Configuration, id: i64, put_edge_function_request: crate::models::PutEdgeFunctionRequest) -> Result<crate::models::EdgeFunctionResponse, Error<EdgeFunctionsIdPutError>> {
-    let local_var_configuration = configuration;
+pub async fn edge_functions_id_put(configuration: &configuration::Configuration, id: i64, put_edge_function_request: models::PutEdgeFunctionRequest) -> Result<models::EdgeFunctionResponse, Error<EdgeFunctionsIdPutError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_id = id;
+    let p_put_edge_function_request = put_edge_function_request;
 
-    let local_var_client = &local_var_configuration.client;
+    let uri_str = format!("{}/edge_functions/{id}", configuration.base_path, id=p_id);
+    let mut req_builder = configuration.client.request(reqwest::Method::PUT, &uri_str);
 
-    let local_var_uri_str = format!("{}/edge_functions/{id}", local_var_configuration.base_path, id=id);
-    let mut local_var_req_builder = local_var_client.request(reqwest::Method::PUT, local_var_uri_str.as_str());
-
-    if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-        local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-        let local_var_key = local_var_apikey.key.clone();
-        let local_var_value = match local_var_apikey.prefix {
-            Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-            None => local_var_key,
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
         };
-        local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        req_builder = req_builder.header("Authorization", value);
     };
-    local_var_req_builder = local_var_req_builder.json(&put_edge_function_request);
+    req_builder = req_builder.json(&p_put_edge_function_request);
 
-    let local_var_req = local_var_req_builder.build()?;
-    let local_var_resp = local_var_client.execute(local_var_req).await?;
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
 
-    let local_var_status = local_var_resp.status();
-    let local_var_content = local_var_resp.text().await?;
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
 
-    if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-        serde_json::from_str(&local_var_content).map_err(Error::from)
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::EdgeFunctionResponse`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::EdgeFunctionResponse`")))),
+        }
     } else {
-        let local_var_entity: Option<EdgeFunctionsIdPutError> = serde_json::from_str(&local_var_content).ok();
-        let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-        Err(Error::ResponseError(local_var_error))
+        let content = resp.text().await?;
+        let entity: Option<EdgeFunctionsIdPutError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
     }
 }
 
-pub async fn edge_functions_post(configuration: &configuration::Configuration, create_edge_function_request: crate::models::CreateEdgeFunctionRequest) -> Result<crate::models::EdgeFunctionResponse, Error<EdgeFunctionsPostError>> {
-    let local_var_configuration = configuration;
+pub async fn edge_functions_post(configuration: &configuration::Configuration, create_edge_function_request: models::CreateEdgeFunctionRequest) -> Result<models::EdgeFunctionResponse, Error<EdgeFunctionsPostError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_create_edge_function_request = create_edge_function_request;
 
-    let local_var_client = &local_var_configuration.client;
+    let uri_str = format!("{}/edge_functions", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    let local_var_uri_str = format!("{}/edge_functions", local_var_configuration.base_path);
-    let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-    if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-        local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-        let local_var_key = local_var_apikey.key.clone();
-        let local_var_value = match local_var_apikey.prefix {
-            Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-            None => local_var_key,
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
         };
-        local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        req_builder = req_builder.header("Authorization", value);
     };
-    local_var_req_builder = local_var_req_builder.json(&create_edge_function_request);
+    req_builder = req_builder.json(&p_create_edge_function_request);
 
-    let local_var_req = local_var_req_builder.build()?;
-    let local_var_resp = local_var_client.execute(local_var_req).await?;
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
 
-    let local_var_status = local_var_resp.status();
-    let local_var_content = local_var_resp.text().await?;
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
 
-    if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-        serde_json::from_str(&local_var_content).map_err(Error::from)
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::EdgeFunctionResponse`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::EdgeFunctionResponse`")))),
+        }
     } else {
-        let local_var_entity: Option<EdgeFunctionsPostError> = serde_json::from_str(&local_var_content).ok();
-        let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-        Err(Error::ResponseError(local_var_error))
+        let content = resp.text().await?;
+        let entity: Option<EdgeFunctionsPostError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
     }
 }
 

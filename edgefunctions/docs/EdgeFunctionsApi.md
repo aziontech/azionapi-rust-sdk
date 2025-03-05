@@ -15,7 +15,7 @@ Method | HTTP request | Description
 
 ## edge_functions_get
 
-> crate::models::ListEdgeFunctionResponse edge_functions_get(page, page_size, sort, order_by)
+> models::ListEdgeFunctionResponse edge_functions_get(page, page_size, sort, order_by)
 edge_functions
 
 ### Parameters
@@ -30,7 +30,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**crate::models::ListEdgeFunctionResponse**](ListEdgeFunctionResponse.md)
+[**models::ListEdgeFunctionResponse**](ListEdgeFunctionResponse.md)
 
 ### Authorization
 
@@ -74,7 +74,7 @@ Name | Type | Description  | Required | Notes
 
 ## edge_functions_id_get
 
-> crate::models::EdgeFunctionResponse edge_functions_id_get(id)
+> models::EdgeFunctionResponse edge_functions_id_get(id)
 edge_functions
 
 ### Parameters
@@ -86,7 +86,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**crate::models::EdgeFunctionResponse**](EdgeFunctionResponse.md)
+[**models::EdgeFunctionResponse**](EdgeFunctionResponse.md)
 
 ### Authorization
 
@@ -102,7 +102,7 @@ Name | Type | Description  | Required | Notes
 
 ## edge_functions_id_patch
 
-> crate::models::EdgeFunctionResponse edge_functions_id_patch(id, patch_edge_function_request)
+> models::EdgeFunctionResponse edge_functions_id_patch(id, patch_edge_function_request)
 edge_functions
 
 ### Parameters
@@ -115,7 +115,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**crate::models::EdgeFunctionResponse**](EdgeFunctionResponse.md)
+[**models::EdgeFunctionResponse**](EdgeFunctionResponse.md)
 
 ### Authorization
 
@@ -131,7 +131,7 @@ Name | Type | Description  | Required | Notes
 
 ## edge_functions_id_put
 
-> crate::models::EdgeFunctionResponse edge_functions_id_put(id, put_edge_function_request)
+> models::EdgeFunctionResponse edge_functions_id_put(id, put_edge_function_request)
 edge_functions
 
 ### Parameters
@@ -144,7 +144,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**crate::models::EdgeFunctionResponse**](EdgeFunctionResponse.md)
+[**models::EdgeFunctionResponse**](EdgeFunctionResponse.md)
 
 ### Authorization
 
@@ -160,7 +160,7 @@ Name | Type | Description  | Required | Notes
 
 ## edge_functions_post
 
-> crate::models::EdgeFunctionResponse edge_functions_post(create_edge_function_request)
+> models::EdgeFunctionResponse edge_functions_post(create_edge_function_request)
 edge_functions
 
 ### Parameters
@@ -172,7 +172,7 @@ Name | Type | Description  | Required | Notes
 
 ### Return type
 
-[**crate::models::EdgeFunctionResponse**](EdgeFunctionResponse.md)
+[**models::EdgeFunctionResponse**](EdgeFunctionResponse.md)
 
 ### Authorization
 
