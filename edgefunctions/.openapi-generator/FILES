@@ -4,7 +4,6 @@ Cargo.toml
 README.md
 docs/BadRequestResponse.md
 docs/CreateEdgeFunctionRequest.md
-docs/CreateEdgeFunctionRequestJsonArgs.md
 docs/EdgeFunctionResponse.md
 docs/EdgeFunctionsApi.md
 docs/ErrorResponse.md
@@ -20,7 +19,6 @@ src/apis/mod.rs
 src/lib.rs
 src/models/bad_request_response.rs
 src/models/create_edge_function_request.rs
-src/models/create_edge_function_request_json_args.rs
 src/models/edge_function_response.rs
 src/models/error_response.rs
 src/models/links.rs

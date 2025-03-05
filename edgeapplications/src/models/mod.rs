@@ -22,6 +22,8 @@ pub mod application_cache_results;
 pub use self::application_cache_results::ApplicationCacheResults;
 pub mod application_create_instance_request;
 pub use self::application_create_instance_request::ApplicationCreateInstanceRequest;
+pub mod application_create_instance_request_args;
+pub use self::application_create_instance_request_args::ApplicationCreateInstanceRequestArgs;
 pub mod application_instance_results;
 pub use self::application_instance_results::ApplicationInstanceResults;
 pub mod application_instances_get_one_response;

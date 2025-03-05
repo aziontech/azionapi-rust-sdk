@@ -14,6 +14,7 @@ docs/ApplicationCachePutResponse.md
 docs/ApplicationCacheResponseDetails.md
 docs/ApplicationCacheResults.md
 docs/ApplicationCreateInstanceRequest.md
+docs/ApplicationCreateInstanceRequestArgs.md
 docs/ApplicationInstanceResults.md
 docs/ApplicationInstancesGetOneResponse.md
 docs/ApplicationInstancesGetResponse.md
@@ -89,6 +90,7 @@ src/models/application_cache_put_response.rs
 src/models/application_cache_response_details.rs
 src/models/application_cache_results.rs
 src/models/application_create_instance_request.rs
+src/models/application_create_instance_request_args.rs
 src/models/application_instance_results.rs
 src/models/application_instances_get_one_response.rs
 src/models/application_instances_get_response.rs

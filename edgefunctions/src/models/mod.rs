@@ -2,8 +2,6 @@ pub mod bad_request_response;
 pub use self::bad_request_response::BadRequestResponse;
 pub mod create_edge_function_request;
 pub use self::create_edge_function_request::CreateEdgeFunctionRequest;
-pub mod create_edge_function_request_json_args;
-pub use self::create_edge_function_request_json_args::CreateEdgeFunctionRequestJsonArgs;
 pub mod edge_function_response;
 pub use self::edge_function_response::EdgeFunctionResponse;
 pub mod error_response;

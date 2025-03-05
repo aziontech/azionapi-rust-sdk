@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 **name** | Option<**String**> |  | [optional]
 **language** | Option<**String**> |  | [optional]
 **code** | Option<**String**> |  | [optional]
-**json_args** | Option<[**models::CreateEdgeFunctionRequestJsonArgs**](CreateEdgeFunctionRequest_json_args.md)> |  | [optional]
+**json_args** | Option<[**serde_json::Value**](.md)> |  | [optional]
 **initiator_type** | Option<**String**> |  | [optional]
 **active** | Option<**bool**> |  | [optional]
 **is_proprietary_code** | Option<**bool**> |  | [optional]
