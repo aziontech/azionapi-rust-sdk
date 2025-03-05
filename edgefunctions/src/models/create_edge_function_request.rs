@@ -19,8 +19,8 @@ pub struct CreateEdgeFunctionRequest {
     pub language: Option<String>,
     #[serde(rename = "code", skip_serializing_if = "Option::is_none")]
     pub code: Option<String>,
-    #[serde(rename = "json_args", skip_serializing_if = "Option::is_none")]
-    pub json_args: Option<Box<models::CreateEdgeFunctionRequestJsonArgs>>,
+    #[serde(rename = "json_args", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
+    pub json_args: Option<Option<serde_json::Value>>,
     #[serde(rename = "initiator_type", skip_serializing_if = "Option::is_none")]
     pub initiator_type: Option<InitiatorType>,
     #[serde(rename = "active", skip_serializing_if = "Option::is_none")]

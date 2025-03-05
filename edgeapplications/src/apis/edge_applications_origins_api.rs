@@ -10,9 +10,9 @@
 
 
 use reqwest;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration};
+use super::{Error, configuration, ContentType};
 
 
 /// struct for typed errors of method [`edge_applications_edge_application_id_origins_get`]
@@ -89,257 +89,321 @@ pub enum EdgeApplicationsEdgeApplicationIdOriginsPostError {
 
 
 pub async fn edge_applications_edge_application_id_origins_get(configuration: &configuration::Configuration, edge_application_id: i64, page: Option<i64>, page_size: Option<i64>, filter: Option<&str>, order_by: Option<&str>, sort: Option<&str>, accept: Option<&str>) -> Result<models::OriginsResponse, Error<EdgeApplicationsEdgeApplicationIdOriginsGetError>> {
-    let local_var_configuration = configuration;
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_edge_application_id = edge_application_id;
+    let p_page = page;
+    let p_page_size = page_size;
+    let p_filter = filter;
+    let p_order_by = order_by;
+    let p_sort = sort;
+    let p_accept = accept;
 
-    let local_var_client = &local_var_configuration.client;
+    let uri_str = format!("{}/edge_applications/{edge_application_id}/origins", configuration.base_path, edge_application_id=p_edge_application_id);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    let local_var_uri_str = format!("{}/edge_applications/{edge_application_id}/origins", local_var_configuration.base_path, edge_application_id=edge_application_id);
-    let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-    if let Some(ref local_var_str) = page {
-        local_var_req_builder = local_var_req_builder.query(&[("page", &local_var_str.to_string())]);
+    if let Some(ref param_value) = p_page {
+        req_builder = req_builder.query(&[("page", &param_value.to_string())]);
     }
-    if let Some(ref local_var_str) = page_size {
-        local_var_req_builder = local_var_req_builder.query(&[("page_size", &local_var_str.to_string())]);
+    if let Some(ref param_value) = p_page_size {
+        req_builder = req_builder.query(&[("page_size", &param_value.to_string())]);
     }
-    if let Some(ref local_var_str) = filter {
-        local_var_req_builder = local_var_req_builder.query(&[("filter", &local_var_str.to_string())]);
+    if let Some(ref param_value) = p_filter {
+        req_builder = req_builder.query(&[("filter", &param_value.to_string())]);
     }
-    if let Some(ref local_var_str) = order_by {
-        local_var_req_builder = local_var_req_builder.query(&[("order_by", &local_var_str.to_string())]);
+    if let Some(ref param_value) = p_order_by {
+        req_builder = req_builder.query(&[("order_by", &param_value.to_string())]);
     }
-    if let Some(ref local_var_str) = sort {
-        local_var_req_builder = local_var_req_builder.query(&[("sort", &local_var_str.to_string())]);
+    if let Some(ref param_value) = p_sort {
+        req_builder = req_builder.query(&[("sort", &param_value.to_string())]);
     }
-    if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-        local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    if let Some(local_var_param_value) = accept {
-        local_var_req_builder = local_var_req_builder.header("Accept", local_var_param_value.to_string());
+    if let Some(param_value) = p_accept {
+        req_builder = req_builder.header("Accept", param_value.to_string());
     }
-    if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-        let local_var_key = local_var_apikey.key.clone();
-        let local_var_value = match local_var_apikey.prefix {
-            Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-            None => local_var_key,
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
         };
-        local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        req_builder = req_builder.header("Authorization", value);
     };
 
-    let local_var_req = local_var_req_builder.build()?;
-    let local_var_resp = local_var_client.execute(local_var_req).await?;
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
 
-    let local_var_status = local_var_resp.status();
-    let local_var_content = local_var_resp.text().await?;
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
 
-    if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-        serde_json::from_str(&local_var_content).map_err(Error::from)
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::OriginsResponse`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::OriginsResponse`")))),
+        }
     } else {
-        let local_var_entity: Option<EdgeApplicationsEdgeApplicationIdOriginsGetError> = serde_json::from_str(&local_var_content).ok();
-        let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-        Err(Error::ResponseError(local_var_error))
+        let content = resp.text().await?;
+        let entity: Option<EdgeApplicationsEdgeApplicationIdOriginsGetError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
     }
 }
 
 pub async fn edge_applications_edge_application_id_origins_origin_key_delete(configuration: &configuration::Configuration, edge_application_id: i64, origin_key: &str, accept: Option<&str>) -> Result<(), Error<EdgeApplicationsEdgeApplicationIdOriginsOriginKeyDeleteError>> {
-    let local_var_configuration = configuration;
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_edge_application_id = edge_application_id;
+    let p_origin_key = origin_key;
+    let p_accept = accept;
 
-    let local_var_client = &local_var_configuration.client;
+    let uri_str = format!("{}/edge_applications/{edge_application_id}/origins/{origin_key}", configuration.base_path, edge_application_id=p_edge_application_id, origin_key=crate::apis::urlencode(p_origin_key));
+    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
-    let local_var_uri_str = format!("{}/edge_applications/{edge_application_id}/origins/{origin_key}", local_var_configuration.base_path, edge_application_id=edge_application_id, origin_key=crate::apis::urlencode(origin_key));
-    let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
-
-    if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-        local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    if let Some(local_var_param_value) = accept {
-        local_var_req_builder = local_var_req_builder.header("Accept", local_var_param_value.to_string());
+    if let Some(param_value) = p_accept {
+        req_builder = req_builder.header("Accept", param_value.to_string());
     }
-    if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-        let local_var_key = local_var_apikey.key.clone();
-        let local_var_value = match local_var_apikey.prefix {
-            Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-            None => local_var_key,
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
         };
-        local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        req_builder = req_builder.header("Authorization", value);
     };
 
-    let local_var_req = local_var_req_builder.build()?;
-    let local_var_resp = local_var_client.execute(local_var_req).await?;
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
 
-    let local_var_status = local_var_resp.status();
-    let local_var_content = local_var_resp.text().await?;
+    let status = resp.status();
 
-    if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+    if !status.is_client_error() && !status.is_server_error() {
         Ok(())
     } else {
-        let local_var_entity: Option<EdgeApplicationsEdgeApplicationIdOriginsOriginKeyDeleteError> = serde_json::from_str(&local_var_content).ok();
-        let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-        Err(Error::ResponseError(local_var_error))
+        let content = resp.text().await?;
+        let entity: Option<EdgeApplicationsEdgeApplicationIdOriginsOriginKeyDeleteError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
     }
 }
 
 pub async fn edge_applications_edge_application_id_origins_origin_key_get(configuration: &configuration::Configuration, edge_application_id: i64, origin_key: &str, accept: Option<&str>) -> Result<models::OriginsIdResponse, Error<EdgeApplicationsEdgeApplicationIdOriginsOriginKeyGetError>> {
-    let local_var_configuration = configuration;
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_edge_application_id = edge_application_id;
+    let p_origin_key = origin_key;
+    let p_accept = accept;
 
-    let local_var_client = &local_var_configuration.client;
+    let uri_str = format!("{}/edge_applications/{edge_application_id}/origins/{origin_key}", configuration.base_path, edge_application_id=p_edge_application_id, origin_key=crate::apis::urlencode(p_origin_key));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    let local_var_uri_str = format!("{}/edge_applications/{edge_application_id}/origins/{origin_key}", local_var_configuration.base_path, edge_application_id=edge_application_id, origin_key=crate::apis::urlencode(origin_key));
-    let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-    if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-        local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    if let Some(local_var_param_value) = accept {
-        local_var_req_builder = local_var_req_builder.header("Accept", local_var_param_value.to_string());
+    if let Some(param_value) = p_accept {
+        req_builder = req_builder.header("Accept", param_value.to_string());
     }
-    if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-        let local_var_key = local_var_apikey.key.clone();
-        let local_var_value = match local_var_apikey.prefix {
-            Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-            None => local_var_key,
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
         };
-        local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        req_builder = req_builder.header("Authorization", value);
     };
 
-    let local_var_req = local_var_req_builder.build()?;
-    let local_var_resp = local_var_client.execute(local_var_req).await?;
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
 
-    let local_var_status = local_var_resp.status();
-    let local_var_content = local_var_resp.text().await?;
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
 
-    if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-        serde_json::from_str(&local_var_content).map_err(Error::from)
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::OriginsIdResponse`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::OriginsIdResponse`")))),
+        }
     } else {
-        let local_var_entity: Option<EdgeApplicationsEdgeApplicationIdOriginsOriginKeyGetError> = serde_json::from_str(&local_var_content).ok();
-        let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-        Err(Error::ResponseError(local_var_error))
+        let content = resp.text().await?;
+        let entity: Option<EdgeApplicationsEdgeApplicationIdOriginsOriginKeyGetError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
     }
 }
 
 pub async fn edge_applications_edge_application_id_origins_origin_key_patch(configuration: &configuration::Configuration, edge_application_id: i64, origin_key: &str, accept: Option<&str>, content_type: Option<&str>, patch_origins_request: Option<models::PatchOriginsRequest>) -> Result<models::OriginsIdResponse, Error<EdgeApplicationsEdgeApplicationIdOriginsOriginKeyPatchError>> {
-    let local_var_configuration = configuration;
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_edge_application_id = edge_application_id;
+    let p_origin_key = origin_key;
+    let p_accept = accept;
+    let p_content_type = content_type;
+    let p_patch_origins_request = patch_origins_request;
 
-    let local_var_client = &local_var_configuration.client;
+    let uri_str = format!("{}/edge_applications/{edge_application_id}/origins/{origin_key}", configuration.base_path, edge_application_id=p_edge_application_id, origin_key=crate::apis::urlencode(p_origin_key));
+    let mut req_builder = configuration.client.request(reqwest::Method::PATCH, &uri_str);
 
-    let local_var_uri_str = format!("{}/edge_applications/{edge_application_id}/origins/{origin_key}", local_var_configuration.base_path, edge_application_id=edge_application_id, origin_key=crate::apis::urlencode(origin_key));
-    let mut local_var_req_builder = local_var_client.request(reqwest::Method::PATCH, local_var_uri_str.as_str());
-
-    if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-        local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    if let Some(local_var_param_value) = accept {
-        local_var_req_builder = local_var_req_builder.header("Accept", local_var_param_value.to_string());
+    if let Some(param_value) = p_accept {
+        req_builder = req_builder.header("Accept", param_value.to_string());
     }
-    if let Some(local_var_param_value) = content_type {
-        local_var_req_builder = local_var_req_builder.header("Content-Type", local_var_param_value.to_string());
+    if let Some(param_value) = p_content_type {
+        req_builder = req_builder.header("Content-Type", param_value.to_string());
     }
-    if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-        let local_var_key = local_var_apikey.key.clone();
-        let local_var_value = match local_var_apikey.prefix {
-            Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-            None => local_var_key,
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
         };
-        local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        req_builder = req_builder.header("Authorization", value);
     };
-    local_var_req_builder = local_var_req_builder.json(&patch_origins_request);
+    req_builder = req_builder.json(&p_patch_origins_request);
 
-    let local_var_req = local_var_req_builder.build()?;
-    let local_var_resp = local_var_client.execute(local_var_req).await?;
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
 
-    let local_var_status = local_var_resp.status();
-    let local_var_content = local_var_resp.text().await?;
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
 
-    if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-        serde_json::from_str(&local_var_content).map_err(Error::from)
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::OriginsIdResponse`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::OriginsIdResponse`")))),
+        }
     } else {
-        let local_var_entity: Option<EdgeApplicationsEdgeApplicationIdOriginsOriginKeyPatchError> = serde_json::from_str(&local_var_content).ok();
-        let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-        Err(Error::ResponseError(local_var_error))
+        let content = resp.text().await?;
+        let entity: Option<EdgeApplicationsEdgeApplicationIdOriginsOriginKeyPatchError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
     }
 }
 
 pub async fn edge_applications_edge_application_id_origins_origin_key_put(configuration: &configuration::Configuration, edge_application_id: i64, origin_key: &str, accept: Option<&str>, content_type: Option<&str>, update_origins_request: Option<models::UpdateOriginsRequest>) -> Result<models::OriginsIdResponse, Error<EdgeApplicationsEdgeApplicationIdOriginsOriginKeyPutError>> {
-    let local_var_configuration = configuration;
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_edge_application_id = edge_application_id;
+    let p_origin_key = origin_key;
+    let p_accept = accept;
+    let p_content_type = content_type;
+    let p_update_origins_request = update_origins_request;
 
-    let local_var_client = &local_var_configuration.client;
+    let uri_str = format!("{}/edge_applications/{edge_application_id}/origins/{origin_key}", configuration.base_path, edge_application_id=p_edge_application_id, origin_key=crate::apis::urlencode(p_origin_key));
+    let mut req_builder = configuration.client.request(reqwest::Method::PUT, &uri_str);
 
-    let local_var_uri_str = format!("{}/edge_applications/{edge_application_id}/origins/{origin_key}", local_var_configuration.base_path, edge_application_id=edge_application_id, origin_key=crate::apis::urlencode(origin_key));
-    let mut local_var_req_builder = local_var_client.request(reqwest::Method::PUT, local_var_uri_str.as_str());
-
-    if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-        local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    if let Some(local_var_param_value) = accept {
-        local_var_req_builder = local_var_req_builder.header("Accept", local_var_param_value.to_string());
+    if let Some(param_value) = p_accept {
+        req_builder = req_builder.header("Accept", param_value.to_string());
     }
-    if let Some(local_var_param_value) = content_type {
-        local_var_req_builder = local_var_req_builder.header("Content-Type", local_var_param_value.to_string());
+    if let Some(param_value) = p_content_type {
+        req_builder = req_builder.header("Content-Type", param_value.to_string());
     }
-    if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-        let local_var_key = local_var_apikey.key.clone();
-        let local_var_value = match local_var_apikey.prefix {
-            Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-            None => local_var_key,
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
         };
-        local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        req_builder = req_builder.header("Authorization", value);
     };
-    local_var_req_builder = local_var_req_builder.json(&update_origins_request);
+    req_builder = req_builder.json(&p_update_origins_request);
 
-    let local_var_req = local_var_req_builder.build()?;
-    let local_var_resp = local_var_client.execute(local_var_req).await?;
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
 
-    let local_var_status = local_var_resp.status();
-    let local_var_content = local_var_resp.text().await?;
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
 
-    if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-        serde_json::from_str(&local_var_content).map_err(Error::from)
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::OriginsIdResponse`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::OriginsIdResponse`")))),
+        }
     } else {
-        let local_var_entity: Option<EdgeApplicationsEdgeApplicationIdOriginsOriginKeyPutError> = serde_json::from_str(&local_var_content).ok();
-        let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-        Err(Error::ResponseError(local_var_error))
+        let content = resp.text().await?;
+        let entity: Option<EdgeApplicationsEdgeApplicationIdOriginsOriginKeyPutError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
     }
 }
 
 pub async fn edge_applications_edge_application_id_origins_post(configuration: &configuration::Configuration, edge_application_id: i64, accept: Option<&str>, content_type: Option<&str>, create_origins_request: Option<models::CreateOriginsRequest>) -> Result<models::OriginsIdResponse, Error<EdgeApplicationsEdgeApplicationIdOriginsPostError>> {
-    let local_var_configuration = configuration;
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_edge_application_id = edge_application_id;
+    let p_accept = accept;
+    let p_content_type = content_type;
+    let p_create_origins_request = create_origins_request;
 
-    let local_var_client = &local_var_configuration.client;
+    let uri_str = format!("{}/edge_applications/{edge_application_id}/origins", configuration.base_path, edge_application_id=p_edge_application_id);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    let local_var_uri_str = format!("{}/edge_applications/{edge_application_id}/origins", local_var_configuration.base_path, edge_application_id=edge_application_id);
-    let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-    if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-        local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    if let Some(local_var_param_value) = accept {
-        local_var_req_builder = local_var_req_builder.header("Accept", local_var_param_value.to_string());
+    if let Some(param_value) = p_accept {
+        req_builder = req_builder.header("Accept", param_value.to_string());
     }
-    if let Some(local_var_param_value) = content_type {
-        local_var_req_builder = local_var_req_builder.header("Content-Type", local_var_param_value.to_string());
+    if let Some(param_value) = p_content_type {
+        req_builder = req_builder.header("Content-Type", param_value.to_string());
     }
-    if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-        let local_var_key = local_var_apikey.key.clone();
-        let local_var_value = match local_var_apikey.prefix {
-            Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-            None => local_var_key,
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
         };
-        local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        req_builder = req_builder.header("Authorization", value);
     };
-    local_var_req_builder = local_var_req_builder.json(&create_origins_request);
+    req_builder = req_builder.json(&p_create_origins_request);
 
-    let local_var_req = local_var_req_builder.build()?;
-    let local_var_resp = local_var_client.execute(local_var_req).await?;
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
 
-    let local_var_status = local_var_resp.status();
-    let local_var_content = local_var_resp.text().await?;
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
 
-    if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-        serde_json::from_str(&local_var_content).map_err(Error::from)
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::OriginsIdResponse`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::OriginsIdResponse`")))),
+        }
     } else {
-        let local_var_entity: Option<EdgeApplicationsEdgeApplicationIdOriginsPostError> = serde_json::from_str(&local_var_content).ok();
-        let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-        Err(Error::ResponseError(local_var_error))
+        let content = resp.text().await?;
+        let entity: Option<EdgeApplicationsEdgeApplicationIdOriginsPostError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
     }
 }
 

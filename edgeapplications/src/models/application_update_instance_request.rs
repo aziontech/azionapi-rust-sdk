@@ -17,16 +17,16 @@ pub struct ApplicationUpdateInstanceRequest {
     pub name: Option<String>,
     #[serde(rename = "edge_function_id", deserialize_with = "Option::deserialize")]
     pub edge_function_id: Option<i64>,
-    #[serde(rename = "args", deserialize_with = "Option::deserialize")]
-    pub args: Option<serde_json::Value>,
+    #[serde(rename = "args")]
+    pub args: Box<models::ApplicationCreateInstanceRequestArgs>,
 }
 
 impl ApplicationUpdateInstanceRequest {
-    pub fn new(name: Option<String>, edge_function_id: Option<i64>, args: Option<serde_json::Value>) -> ApplicationUpdateInstanceRequest {
+    pub fn new(name: Option<String>, edge_function_id: Option<i64>, args: models::ApplicationCreateInstanceRequestArgs) -> ApplicationUpdateInstanceRequest {
         ApplicationUpdateInstanceRequest {
             name,
             edge_function_id,
-            args,
+            args: Box::new(args),
         }
     }
 }

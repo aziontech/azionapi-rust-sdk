@@ -17,16 +17,16 @@ pub struct ApplicationPutInstanceRequest {
     pub name: String,
     #[serde(rename = "edge_function_id")]
     pub edge_function_id: i64,
-    #[serde(rename = "args", deserialize_with = "Option::deserialize")]
-    pub args: Option<serde_json::Value>,
+    #[serde(rename = "args")]
+    pub args: Box<models::ApplicationCreateInstanceRequestArgs>,
 }
 
 impl ApplicationPutInstanceRequest {
-    pub fn new(name: String, edge_function_id: i64, args: Option<serde_json::Value>) -> ApplicationPutInstanceRequest {
+    pub fn new(name: String, edge_function_id: i64, args: models::ApplicationCreateInstanceRequestArgs) -> ApplicationPutInstanceRequest {
         ApplicationPutInstanceRequest {
             name,
             edge_function_id,
-            args,
+            args: Box::new(args),
         }
     }
 }
