@@ -1,21 +1,72 @@
+name: Bump version
+
+# Tags every push to main with the next SemVer version (vX.Y.Z).
+# Same rules as the anothrNick/github-tag-action@1.37.0 setup it replaces
+# (deprecated, see SO-4939): minor bump by default; "#major", "#minor",
+# "#patch" or "#none" in a commit message since the last tag overrides it;
+# nothing happens when HEAD is already tagged. The tag is a lightweight ref
+# created through the GitHub API, as before. No GitHub Release is created.
+
 on:
   push:
     branches:
       - main
 
+permissions: {}
+
+concurrency:
+  group: bump-version
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 5
+    permissions:
+      contents: write # create the version tag
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: false
 
       - name: Bump version and push tag
-        uses: anothrNick/github-tag-action@1.37.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_BRANCHES: main
-          WITH_V: true
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BUMP: minor
+        run: |
+          set -euo pipefail
+          tag=$(git for-each-ref --sort=-v:refname --format '%(refname:lstrip=2)' refs/tags \
+            | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+$' | head -n1 || true)
+          if [ -z "$tag" ]; then
+            tag="v0.0.0"
+            log=$(git log --pretty='%B')
+          else
+            if [ "$(git rev-list -n 1 "$tag")" = "$(git rev-parse HEAD)" ]; then
+              echo "No new commits since $tag. Skipping."
+              exit 0
+            fi
+            log=$(git log "$tag..HEAD" --pretty='%B')
+          fi
+
+          case "$log" in
+            *'#major'*) part="major" ;;
+            *'#minor'*) part="minor" ;;
+            *'#patch'*) part="patch" ;;
+            *'#none'*) echo "#none found in commit messages. Skipping."; exit 0 ;;
+            *) part="$DEFAULT_BUMP" ;;
+          esac
+
+          IFS=. read -r major minor patch <<< "${tag#v}"
+          case "$part" in
+            major) major=$((major + 1)); minor=0; patch=0 ;;
+            minor) minor=$((minor + 1)); patch=0 ;;
+            patch) patch=$((patch + 1)) ;;
+          esac
+          new="v${major}.${minor}.${patch}"
+
+          echo "Previous tag: $tag, bump: $part, new tag: $new"
+          gh api "repos/${GITHUB_REPOSITORY}/git/refs" -f ref="refs/tags/${new}" -f sha="${GITHUB_SHA}" >/dev/null
+          echo "Created tag $new on ${GITHUB_SHA}"

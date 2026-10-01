@@ -1,0 +1,32 @@
+# Test harness for the generated crates. It depends on every crate, so a
+# crate that stops compiling fails the build. `storage` is left out: its
+# generated Cargo.toml declares the invalid version "1.0.0 (1)" (see the
+# guard in tests/vitest/functional/crates.test.ts).
+[package]
+name = "sdk-harness"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+serde_json = "1"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+credentials = { path = "../../../credentials" }
+data_streaming = { path = "../../../data_streaming" }
+digital_certificates = { path = "../../../digital_certificates" }
+domains = { path = "../../../domains" }
+edgeapplications = { path = "../../../edgeapplications" }
+edgefirewall = { path = "../../../edgefirewall" }
+edgefunctions = { path = "../../../edgefunctions" }
+edgefunctionsinstance_edgefirewall = { path = "../../../edgefunctionsinstance_edgefirewall" }
+edgenode = { path = "../../../edgenode" }
+idns = { path = "../../../idns" }
+networklist = { path = "../../../networklist" }
+personal_tokens = { path = "../../../personal_tokens" }
+realtimepurge = { path = "../../../realtimepurge" }
+services = { path = "../../../services" }
+storageapi = { path = "../../../storageapi" }
+variables = { path = "../../../variables" }
+waf = { path = "../../../waf" }
