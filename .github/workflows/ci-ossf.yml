@@ -1,0 +1,35 @@
+name: OSSF Scorecard
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    - cron: '25 5 * * 1'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  scorecard:
+    name: OSSF Scorecard # required status check context
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Run Scorecard (results not published)
+        uses: ossf/scorecard-action@2d1146689b8cda280b9bc96326124645441f03bc # v2.4.4
+        with:
+          results_file: results.json
+          results_format: json
+          publish_results: false
+
+      - name: Report aggregate score
+        run: |
+          jq -r '"OSSF Scorecard aggregate: \(.score)", (.checks[] | "  \(.score)\t\(.name)")' results.json
