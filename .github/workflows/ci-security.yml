@@ -84,9 +84,9 @@ jobs:
 
       - name: SAST (semgrep)
         if: ${{ !cancelled() }}
-        env:
-          SEMGREP_SEND_METRICS: 'off'
-        run: semgrep scan --config auto --disable-nosem --severity ERROR --error --metrics off .
+        # `--config auto` selects registry rules for the detected languages and
+        # requires semgrep metrics to be enabled.
+        run: semgrep scan --config auto --disable-nosem --severity ERROR --error .
 
       - name: Dependency scanning (osv-scanner)
         if: ${{ !cancelled() }}
