@@ -1,0 +1,18 @@
+# Default ownership
+*                                       @aziontech/team-delivery-engineering
+
+# Engineering standards (public repository: OSS review required)
+/.github/                               @aziontech/oss-review @aziontech/team-delivery-engineering
+/CODEOWNERS                             @aziontech/oss-review @aziontech/team-delivery-engineering
+/SECURITY.md                            @aziontech/oss-review @aziontech/security-office
+/.github/workflows/ci-security.yml      @aziontech/oss-review @aziontech/security-office
+
+# Security tool configs: bypasses require security-office review
+.gitleaks.toml                          @aziontech/oss-review @aziontech/security-office
+.gitleaksignore                         @aziontech/oss-review @aziontech/security-office
+.semgrepignore                          @aziontech/oss-review @aziontech/security-office
+osv-scanner.toml                        @aziontech/oss-review @aziontech/security-office
+.zizmor.yml                             @aziontech/oss-review @aziontech/security-office
+
+# Rust
+.cargo/audit.toml                       @aziontech/oss-review @aziontech/security-office
